@@ -32,16 +32,19 @@
     --safe-bottom: env(safe-area-inset-bottom, 0px);
   }
   *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
-  html,body{margin:0;padding:0;height:100%;}
+  html{margin:0;padding:0;}
   body{
+    margin:0;padding:0;
     font-family:-apple-system,BlinkMacSystemFont,"Pretendard","Apple SD Gothic Neo","Malgun Gothic",sans-serif;
     background:
       radial-gradient(circle at 20% 0%, #3a2570 0%, transparent 45%),
       radial-gradient(circle at 90% 10%, #4b2a63 0%, transparent 40%),
       linear-gradient(180deg, var(--bg-0), var(--bg-1) 40%, var(--bg-0));
+    background-attachment:fixed;
     color:var(--text-0);
-    min-height:100%;
     overflow-x:hidden;
+    overflow-y:auto;
+    -webkit-overflow-scrolling:touch;
   }
   .stars{
     position:fixed; inset:0; pointer-events:none; z-index:0; opacity:.5;
@@ -155,6 +158,26 @@
     font-size:20px; box-shadow:0 10px 30px -8px #ff7ab880; display:flex; align-items:center; justify-content:center;
   }
 
+  .copy-all-wrap{ display:flex; justify-content:center; margin:2px 0 16px; }
+  .copy-all-btn{
+    display:inline-flex; align-items:center; gap:8px; cursor:pointer;
+    font-size:13.5px; font-weight:700; color:#1a0f33;
+    background:linear-gradient(135deg,var(--gold),#ffd98a);
+    border:none; padding:11px 20px; border-radius:999px;
+    box-shadow:0 10px 26px -10px #f4c96890;
+  }
+  .copy-all-btn:active{ transform:scale(0.97); }
+  .copy-all-btn .icon{ font-size:15px; }
+
+  .toast{
+    position:fixed; left:50%; bottom:calc(var(--safe-bottom) + 90px); transform:translateX(-50%) translateY(20px);
+    background:#000000cc; color:#fff; font-size:13.5px; font-weight:600;
+    padding:11px 20px; border-radius:999px; z-index:20;
+    opacity:0; pointer-events:none; transition:opacity .25s ease, transform .25s ease;
+    white-space:nowrap;
+  }
+  .toast.show{ opacity:1; transform:translateX(-50%) translateY(0); }
+
   ::selection{ background:#ff7ab850; }
 </style>
 </head>
@@ -168,6 +191,10 @@
     <p class="date" id="dateLine">불러오는 중...</p>
     <div class="ilju">오늘의 일진 &nbsp;<b id="iljuBranch">-</b>일</div>
   </header>
+
+  <div class="copy-all-wrap">
+    <button class="copy-all-btn" id="copyAllBtn"><span class="icon">📋</span>오늘의 운세 전체 복사</button>
+  </div>
 
   <div class="find-me">
     <div class="ttl">🔍 내 띠 빠르게 찾기</div>
@@ -183,6 +210,8 @@
     ※ 어디까지나 당사주 기반 운세이니, 그냥 재미로만 보세요! 😜
   </footer>
 </div>
+
+<div class="toast" id="toast"></div>
 
 <button class="fab" id="scrollTop" title="맨 위로">↑</button>
 
