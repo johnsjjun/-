@@ -150,3 +150,42 @@ function generateDailyFortune(today = new Date()) {
 
     return { todayBranch, todayStr: formatDateKorean(today), results };
 }
+
+// 원본 파이썬 스크립트(generate_daily_fortune)와 동일한 형식의 텍스트로 직렬화
+function buildFortuneText(data) {
+    let msg = `✨ [${data.todayStr}] 오늘의 당사주 띠별 상세 운세 ✨\n`;
+    msg += `오늘의 일진: [${data.todayBranch}일]\n`;
+    msg += "════════════════════════════════════════\n\n";
+
+    for (const item of data.results) {
+        const info = item.info;
+        msg += `[${item.ttiName}] - ${info.name}\n`;
+        msg += `• 종합운: ${info.power}\n`;
+        msg += `• 한줄요약: ${info.summary}\n`;
+        msg += `💰 재물운: ${info.money}\n`;
+        msg += `💖 애정운: ${info.love}\n`;
+        msg += `💼 직장운: ${info.work}\n`;
+
+        if (item.specialNote) {
+            msg += `⚡ 일진특보: ${item.specialNote}\n`;
+        }
+
+        msg += `🍀 행운요소: 방위(${info.dir}) | 숫자(${info.num})\n`;
+        msg += `🎁 행운템: ${info.item}\n`;
+        msg += `⚠️ 조심!: ${info.caution}\n`;
+
+        if (item.yearLines && item.yearLines.length) {
+            msg += `🎂 생년별 총운:\n`;
+            for (const yl of item.yearLines) {
+                msg += `   · ${yl.shortYear}년생 — ${yl.line}\n`;
+            }
+        }
+
+        msg += "----------------------------------------\n\n";
+    }
+
+    msg += "════════════════════════════════════════\n";
+    msg += "오늘도 기분 좋은 일들만 가득하시길 바랍니다! 😊\n";
+    msg += "※ 어디까지나 당사주 기반 운세이니, 그냥 재미로만 보세요! 😜";
+    return msg;
+}
