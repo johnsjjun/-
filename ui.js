@@ -84,7 +84,13 @@
         const idx = entry.target.id.split('-')[1];
         tabBtns.forEach(b => b.classList.toggle('active', b.dataset.idx === idx));
         const btn = tabBtns.find(b => b.dataset.idx === idx);
-        if (btn) btn.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+        if (btn) {
+          // 탭바 내부만 가로로 스크롤 (scrollIntoView는 페이지 세로 스크롤과 충돌할 수 있어 사용하지 않음)
+          const barRect = tabbar.getBoundingClientRect();
+          const btnRect = btn.getBoundingClientRect();
+          const offset = (btnRect.left + btnRect.right) / 2 - (barRect.left + barRect.right) / 2;
+          tabbar.scrollBy({ left: offset, behavior: 'smooth' });
+        }
       }
     });
   }, { rootMargin: '-20% 0px -70% 0px', threshold: 0 });
@@ -92,6 +98,46 @@
 
   document.getElementById('scrollTop').addEventListener('click', () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+
+  // 전체 운세 복사
+  const toastEl = document.getElementById('toast');
+  let toastTimer = null;
+  function showToast(text) {
+    toastEl.textContent = text;
+    toastEl.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => toastEl.classList.remove('show'), 2000);
+  }
+
+  function fallbackCopy(text) {
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    ta.style.position = 'fixed';
+    ta.style.left = '-9999px';
+    document.body.appendChild(ta);
+    ta.focus();
+    ta.select();
+    let ok = false;
+    try { ok = document.execCommand('copy'); } catch (e) { ok = false; }
+    document.body.removeChild(ta);
+    return ok;
+  }
+
+  document.getElementById('copyAllBtn').addEventListener('click', async () => {
+    const text = buildFortuneText(data);
+    try {
+      if (navigator.clipboard && window.isSecureContext) {
+        await navigator.clipboard.writeText(text);
+        showToast('✅ 오늘의 운세가 복사되었어요');
+      } else {
+        const ok = fallbackCopy(text);
+        showToast(ok ? '✅ 오늘의 운세가 복사되었어요' : '복사에 실패했어요, 직접 선택해 복사해주세요');
+      }
+    } catch (e) {
+      const ok = fallbackCopy(text);
+      showToast(ok ? '✅ 오늘의 운세가 복사되었어요' : '복사에 실패했어요, 직접 선택해 복사해주세요');
+    }
   });
 
   // PWA: 서비스워커 등록(있으면)
